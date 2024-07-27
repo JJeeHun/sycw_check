@@ -1,0 +1,19 @@
+spring:
+  datasource:
+    driver-class-name: org.mariadb.jdbc.Driver
+    username: sycwa
+    password: sycwwms1234
+  devtools:
+    restart:
+      enabled: true
+    livereload:
+      enabled: true
+logging:
+  level:
+    root: debug
+server:
+  port: 3000
+
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true

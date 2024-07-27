@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Contact Result</title>
+
+    <style>
+        #container {
+            height: 100%;
+        }
+
+        .orderRow {
+            border: 1px solid black;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .orderRow > span {
+            border-right: 1px solid black;
+            flex: 1;
+            text-align: center;
+        }
+        .orderRow > span.order_no {
+            flex: 2;
+        }
+        .orderRow > span.order_no > button {
+            display: none;
+        }
+        .orderRow > span.order_no:hover > button {
+            display: inline-block;
+        }
+
+        .orderRow > span:last-child {
+            border-right: none;
+        }
+
+        .orderRow > span.number {
+            text-align: right;
+        }
+        .orderRow:first-child {
+            position: sticky;
+            top: 0;
+            background-color: palegreen;
+            padding: 5px 0;
+        }
+        .error {
+            color: red;
+        }
+        .click {
+            background-color: #98fb9859;
+        }
+    </style>
+</head>
+<body>
+    Hello World
+
+    <div id="container" class="box">
+        <div class="orderRow">
+            <span class="order_no">Contact Order No</span>
+            <span class="original">original</span>
+            <span class="order">order</span>
+            <span class="gi">gi</span>
+            <span class="shipping">shipping</span>
+            <span class="plan">plan</span>
+            <span class="picking">picking</span>
+            <span class="closing">closing</span>
+        </div>
+    </div>
+
+  <script th:inline="javascript">
+    const box = document.querySelector("#container");
+    const arr = [[${jsData}]]
+    const isCheckOrder = /*[[${isCheckOrder}]]*/ false;
+
+    const types = ['original','order','gi','shipping','plan','picking','closing'];
+
+    const notEqQty = (notEqualsCheckQty) => {
+        if(isCheckOrder) notEqualsCheckQty = notEqualsCheckQty.slice(1);
+        const checkQty = notEqualsCheckQty[0];
+        return notEqualsCheckQty.some( qty => !(checkQty === qty) );
+    }
+
+    const createRow = (order) => {
+        const orderRow = document.createElement('div');
+        orderRow.classList.add("orderRow");
+
+        for(const contactOrderNo in order) {
+            const items = order[contactOrderNo];
+            const contactOrderTextNode = document.createElement('span');
+            const popupButton = document.createElement('button');
+            const notEqualsCheckQty = [];
+
+            contactOrderTextNode.textContent = contactOrderNo;
+            contactOrderTextNode.classList.add('order_no');
+            popupButton.textContent = 'Click';
+            orderRow.append(contactOrderTextNode);
+            contactOrderTextNode.append(popupButton);
+
+            for(const type of types) {
+                const qtySpan = document.createElement('span');
+                qtySpan.classList.add(type);
+                qtySpan.classList.add('number');
+                qtySpan.textContent = items[type]?.[0]?.qty || 0;
+
+                notEqualsCheckQty.push(items[type]?.[0]?.qty || 0);
+
+                if(type ===  'closing') {
+                    if( notEqQty(notEqualsCheckQty) ) orderRow.classList.add('error');
+                }
+                orderRow.append(qtySpan);
+            }
+        }
+        return orderRow;
+    }
+
+    arr.forEach((order,i) => {
+        const orderRow = createRow(order);
+        box.append(orderRow);
+    });
+
+    let clickRow;
+    box.addEventListener('click',e => {
+        const {target: button} = e;
+        if(button.nodeName === 'BUTTON') {
+            clickRow?.classList.remove("click");
+
+            const replaceText = button.textContent;
+            const contactOrderNo = button.parentNode.textContent.replace(replaceText,'');
+            clickRow = button.closest('.orderRow');
+            clickRow.classList.add("click");
+            window.open("/si/find-contact/" + contactOrderNo, contactOrderNo, "width=1200,height=720");
+        }
+    });
+  </script>
+</body>
+</html>
