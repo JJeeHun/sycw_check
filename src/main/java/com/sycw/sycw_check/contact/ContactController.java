@@ -39,6 +39,8 @@ public class ContactController {
         Map<String,List<ContactDTO>> pickingPlanQty = getContactGroup(contactRepository.pickingPlanQty(contactOrderNos));
         Map<String,List<ContactDTO>> pickingQty = getContactGroup(contactRepository.pickingQty(contactOrderNos));
         Map<String,List<ContactDTO>> giClosingQty = getContactGroup(contactRepository.giClosingQty(contactOrderNos));
+        Map<String,List<ContactDTO>> sending753 = getContactGroup(contactRepository.sending753d(contactOrderNos));
+        Map<String,List<ContactDTO>> sending856 = getContactGroup(contactRepository.sending856d(contactOrderNos));
 
         return contactOrderNos.stream()
                 .map(contactOrderNo -> {
@@ -51,6 +53,8 @@ public class ContactController {
                         put("plan", pickingPlanQty.get(contactOrderNo));
                         put("picking", pickingQty.get(contactOrderNo));
                         put("closing", giClosingQty.get(contactOrderNo));
+                        put("sending753", sending753.get(contactOrderNo));
+                        put("sending856", sending856.get(contactOrderNo));
                     }};
 
                     contact.put(contactOrderNo, stringListHashMap);

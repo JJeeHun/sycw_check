@@ -41,3 +41,7 @@ dependencies {
 tasks.named('test') {
     useJUnitPlatform()
 }
+
+bootJar {
+    mainClass = 'com.sycw.sycw_check.SycwCheckApplication'
+}

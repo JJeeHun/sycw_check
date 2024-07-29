@@ -28,12 +28,16 @@ public class SiController {
         List<PickingPlanEntity> plan = siRepository.findPlan(contactOrderNo);
         List<PickingEntity> picking = siRepository.findPicking(contactOrderNo);
         List<ClosingEntity> closing = siRepository.findClosing(contactOrderNo);
+        List<Sending753Entity> sending753 = siRepository.findSending753(contactOrderNo);
+        List<Sending856Entity> sending856 = siRepository.findSending856(contactOrderNo);
 
-        model.addAttribute("orderItem",orderItem);
-        model.addAttribute("shipping",shipping);
-        model.addAttribute("plan",plan);
-        model.addAttribute("picking",picking);
-        model.addAttribute("closing",closing);
+        model.addAttribute("orderItem", orderItem);
+        model.addAttribute("shipping", shipping);
+        model.addAttribute("plan", plan);
+        model.addAttribute("picking", picking);
+        model.addAttribute("closing", closing);
+        model.addAttribute("sending753", sending753);
+        model.addAttribute("sending856", sending856);
 
         return "contact_si";
     }

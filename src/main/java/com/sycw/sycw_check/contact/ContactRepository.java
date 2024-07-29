@@ -101,4 +101,34 @@ public interface ContactRepository {
             "</script>"
     })
     public List<ContactDTO> giClosingQty(List<String> contactOrderNos);
+
+    @Select({
+            "<script>",
+            "select",
+            "    a.CONTACT_ORD_NO as contactOrderNo,",
+            "    sum(ITEM_QTY) as qty",
+            "from tb_su753d a",
+            "where a.CONTACT_ORD_NO in",
+            "<foreach item='contactOrderNo' collection='contactOrderNos' open='(' close=')' separator=','>",
+            "#{contactOrderNo}",
+            "</foreach>",
+            "group by a.CONTACT_ORD_NO",
+            "</script>"
+    })
+    List<ContactDTO> sending753d(List<String> contactOrderNos);
+
+    @Select({
+            "<script>",
+            "select",
+            "    a.CONTACT_ORD_NO as contactOrderNo,",
+            "    sum(ITEM_QTY) as qty",
+            "from tb_su856d a",
+            "where a.CONTACT_ORD_NO in",
+            "<foreach item='contactOrderNo' collection='contactOrderNos' open='(' close=')' separator=','>",
+            "#{contactOrderNo}",
+            "</foreach>",
+            "group by a.CONTACT_ORD_NO",
+            "</script>"
+    })
+    List<ContactDTO> sending856d(List<String> contactOrderNos);
 }

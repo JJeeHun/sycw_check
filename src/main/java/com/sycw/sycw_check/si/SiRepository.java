@@ -25,4 +25,10 @@ public interface SiRepository {
 
     @Select("select * from tb_oo0500 where CONTACT_ORD_NO = #{contactOrderNo} order by SI_NO,SI_ITEM_NO,ETD")
     List<ClosingEntity> findClosing(String contactOrderNo);
+
+    @Select("select * from tb_su753d where CONTACT_ORD_NO = #{contactOrderNo} order by SI_NO,ITEM_NO,CREATE_DATE")
+    List<Sending753Entity> findSending753(String contactOrderNo);
+
+    @Select("select * from tb_su856d where CONTACT_ORD_NO = #{contactOrderNo} order by SI_NO,SEQ,CREATE_DATE")
+    List<Sending856Entity> findSending856(String contactOrderNo);
 }

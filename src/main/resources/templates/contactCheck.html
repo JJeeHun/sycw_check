@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Contact Order Qty Check</title>
+
+    <style>
+        #file-submit,#text-submit {
+            display: none;
+        }
+        .active {
+            display: inherit !important;
+        }
+        form {
+            border: 1px solid black;
+            padding: 20px;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="select">
+        <label for="selectFile">
+            <input type="radio" name="select" id="selectFile" value="selectFile">
+            CSV File
+        </label>
+
+        <label for="selectText">
+            <input type="radio" name="select" id="selectText" value="selectText">
+            Contact Order No
+        </label>
+    </div>
+
+    <form id="file-submit" action="/contact/check-qty" method="post" enctype="multipart/form-data">
+        <label for="file">file : </label>
+        <input type="file" name="file" id="file">
+        <p>ex)</p>
+        <p>Contact Order No, Qty</p>
+        <p>9123919,10</p>
+        <p>9123920,11</p>
+        <p>9123921,20</p>
+
+        <button>전송</button>
+    </form>
+
+    <form id="text-submit" action="/contact/check-qty" method="post" enctype="multipart/form-data">
+        <p>Contact Order No</p>
+        <textarea name="contactOrderNo" id="contactOrderNo" style="width: 100%; height: 300px"></textarea>
+        <input type="file" name="file" style="display: none">
+        <button>전송</button>
+    </form>
+
+    <script>
+        const file_submit_form = document.querySelector('#file-submit');
+        const text_submit_form = document.querySelector('#text-submit');
+        const radioFile = document.querySelector('#selectFile')
+        const radioContactOrder = document.querySelector('#selectText');
+
+        radioFile.addEventListener('change', () => {
+            text_submit_form.classList.remove('active');
+            file_submit_form.classList.add('active');
+        });
+
+        radioContactOrder .addEventListener('change', () => {
+            file_submit_form.classList.remove('active');
+            text_submit_form.classList.add('active');
+        });
+
+        radioContactOrder.click();
+    </script>
+
+</body>
+</html>
