@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Contact Order Qty Check</title>
-
+    <link rel="stylesheet" href="/css/common.css">
     <style>
         #file-submit,#text-submit {
             display: none;
@@ -17,6 +17,8 @@
             margin-top: 15px;
         }
     </style>
+
+
 </head>
 <body>
 
@@ -41,21 +43,39 @@
         <p>9123920,11</p>
         <p>9123921,20</p>
 
-        <button>전송</button>
+        <button type="button" onclick="serverSubmit(this);">전송</button>
     </form>
 
     <form id="text-submit" action="/contact/check-qty" method="post" enctype="multipart/form-data">
         <p>Contact Order No</p>
         <textarea name="contactOrderNo" id="contactOrderNo" style="width: 100%; height: 300px"></textarea>
         <input type="file" name="file" style="display: none">
-        <button>전송</button>
+        <button type="button" onclick="serverSubmit(this);">전송</button>
     </form>
 
+
+    <script src="/js/loading.js"></script>
     <script>
         const file_submit_form = document.querySelector('#file-submit');
         const text_submit_form = document.querySelector('#text-submit');
         const radioFile = document.querySelector('#selectFile')
         const radioContactOrder = document.querySelector('#selectText');
+        const fileNode = document.querySelector('#file');
+        const textareaNode = document.querySelector('#contactOrderNo');
+
+        const serverSubmit = (button) => {
+            const form = button.closest('form');
+
+            if(form === file_submit_form && !fileNode.value) {
+                return alert('CSV file does not exist');
+            }
+            if (form === text_submit_form && !textareaNode.value ) {
+                return alert("Contact Order No does not exist");
+            }
+
+            Loading.start();
+            form.submit();
+        }
 
         radioFile.addEventListener('change', () => {
             text_submit_form.classList.remove('active');
