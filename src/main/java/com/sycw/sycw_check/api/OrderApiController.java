@@ -19,7 +19,7 @@ public class OrderApiController {
     private final OrderApiRepository orderApiRepository;
 
     @GetMapping("/{systemOrderNo}")
-    public List<OrderItemEntity> getOrderItems(@PathVariable String systemOrderNo) {
+    public List<OrderItemEntity> getOrderItems(@PathVariable(name = "systemOrderNo") String systemOrderNo) {
         return orderApiRepository.findOrderItemAll(systemOrderNo);
     }
 
