@@ -3,74 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
-
+    <link rel="stylesheet" th:href="@{/css/common.css}">
+     <script th:src="@{/js/ag-grid.js}"></script>
+     <script th:src="@{/js/loading.js}" defer></script>
+<!--    <script src="/static/js/ag-grid.js"></script>-->
     <style>
-        .box {
-            display: flex;
-            justify-content: space-between;
-            height: 96vh;
+        * {
+            box-sizing: border-box;
+            margin: 0;
         }
-        .shipping, .plan, .picking, .closing, .sending753, .sending856 {
-            border: 1px solid black;
-            height: 100%;
-            flex: 1;
-            font-size: .7rem;
-            transition: all .4s ease-in-out;
-            overflow: auto;
+        body {
+            margin: 0;
         }
-
-        .active {
-            flex: 3;
-        }
-
-        h2 {
-            text-align: center;
-        }
-
-        .row {
-            display: flex;
-            border-bottom: 1px solid black;
-        }
-        .row.header {
-            border-top: 1px solid black;
-            text-align: center;
-        }
-
-        .col {
-            border-right: 1px solid black;
-            flex:1;
-            overflow: hidden;
-            white-space: nowrap;
-            padding: 0 5px;
-        }
-
-        .number {
-            text-align: right;
-        }
-
-        .si_no {
-            flex-basis: 100px;
-        }
-
-        .row .col:last-child {
-            border-right: none;
-        }
-
-        .error {
-            color: red !important;
-            font-weight: bold;
-        }
-
-        div:not(.error) > .row .qty {
-            color: #b01ae4;
-            font-weight: bold;
-            font-size: 0.75rem;
-        }
-
-        .summary {
-            background-color: palegreen;
-        }
-
         /* 전체 스크롤바 */
         ::-webkit-scrollbar {
             width: 5px; /* 스크롤바의 너비 */
@@ -93,259 +37,210 @@
             background: #555; /* 핸들이 호버될 때의 색상 */
         }
 
+        :root {
+            --title-height: 50px;
+        }
+
+        header {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: var(--title-height);
+        }
+        h2 {
+            font-size: .8rem;
+            text-align: center;
+            height: var(--title-height);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            width: 100vw;
+            height: calc(100vh - var(--title-height));
+            display: flex;
+        }
+        .container.block {
+            display: inherit;
+            width: 99vw;
+        }
+        .box {
+            flex: 1;
+            height: 100%;
+            padding: 0 5px;
+            overflow: hidden;
+        }
+        .box > div {
+            font-size: .7rem;
+            height: calc(100% - var(--title-height));
+        }
+        .fixed-layout-change {
+            position: absolute;
+            top: 50%;
+            right: 10px;
+        }
+        .error {
+            color: red;
+        }
+
     </style>
 </head>
 <body>
+    <header>
+        <h1>Order Inner SI NO</h1>
+        <button class="fixed-layout-change" onclick="changeLayout();">Layout Change</button>
+    </header>
+    <div class="container">
+        <div class="box">
+            <h2>Shipping(oo0200)</h2>
+            <div id="shipping-grid" class="ag-theme-quartz grid"></div>
+        </div>
+        <div class="box">
+            <h2>Plan(oo0300)</h2>
+            <div id="plan-grid" class="ag-theme-quartz"></div>
+        </div>
+        <div class="box">
+            <h2>Picking(oo0400)</h2>
+            <div id="picking-grid" class="ag-theme-quartz"></div>
+        </div>
+        <div class="box">
+            <h2>Closing(oo0500)</h2>
+            <div id="closing-grid" class="ag-theme-quartz"></div>
+        </div>
+        <div class="box">
+            <h2>Send753(su753d)</h2>
+            <div id="detail753-grid" class="ag-theme-quartz"></div>
+        </div>
+        <div class="box">
+            <h2>Send856(su856d)</h2>
+            <div id="detail856-grid" class="ag-theme-quartz"></div>
+        </div>
 
-    <div class="box">
-        <div class="shipping">
-            <h2>
-                <label for="shipping-title">
-                    <input type="checkbox" id="shipping-title">
-                    Shipping Instruction
-                </label>
-            </h2>
-            <div class="row header">
-                <span class="col si_no">SI NO</span>
-                <span class="col">SI ITEM NO</span>
-                <span class="col">QTY</span>
-            </div>
-        </div>
-        <div class="plan">
-            <h2>
-                <label for="plan-title">
-                    <input type="checkbox" id="plan-title">
-                    Plan
-                </label>
-            </h2>
-            <div class="row header">
-                <span class="col si_no">SI NO</span>
-                <span class="col">SI ITEM NO</span>
-                <span class="col">QTY</span>
-            </div>
-        </div>
-        <div class="picking">
-            <h2>
-                <label for="picking-title">
-                    <input type="checkbox" id="picking-title">
-                    Picking
-                </label>
-            </h2>
-            <div class="row header">
-                <span class="col si_no">SI NO</span>
-                <span class="col">SI ITEM NO</span>
-                <span class="col">QTY</span>
-            </div>
-        </div>
-        <div class="closing">
-            <h2>
-                <label for="closing-title">
-                    <input type="checkbox" id="closing-title">
-                    Closing
-                </label>
-            </h2>
-            <div class="row header">
-                <span class="col si_no">SI NO</span>
-                <span class="col">SI ITEM NO</span>
-                <span class="col">QTY</span>
-                <span class="col">CLOSING DATE</span>
-            </div>
-        </div>
-        <div class="sending753">
-            <h2>
-                <label for="sending753-title">
-                    <input type="checkbox" id="sending753-title">
-                    Sending753
-                </label>
-            </h2>
-            <div class="row header">
-                <span class="col si_no">SI NO</span>
-                <span class="col">ITEM NO</span>
-                <span class="col">QTY</span>
-            </div>
-        </div>
-        <div class="sending856">
-            <h2>
-                <label for="sending856-title">
-                    <input type="checkbox" id="sending856-title">
-                    Sending856
-                </label>
-            </h2>
-            <div class="row header">
-                <span class="col si_no">SI NO</span>
-                <span class="col">SEQ</span>
-                <span class="col">QTY</span>
-            </div>
-        </div>
     </div>
 
-
-    <script>
-        const shippingContainer = document.querySelector(".shipping");
-        const planContainer     = document.querySelector(".plan");
-        const pickingContainer  = document.querySelector(".picking");
-        const closingContainer  = document.querySelector(".closing");
-        const sending753Container  = document.querySelector(".sending753");
-        const sending856Container  = document.querySelector(".sending856");
-        const checkboxs = document.querySelectorAll('.box input');
-
-        checkboxs.forEach(checkbox => checkbox.addEventListener('change', ({target}) => {
-            target.closest('div').classList.toggle('active');
-        }));
-
-
-        const CreateShipping = (list,total) => {
-            let sum = 0;
-            const viewField = ['siNo','siItemNo','plannedQty'];
-            list.forEach( rowData => {
-                const rowNode = CreateRow( rowData, viewField );
-                sum += rowData?.plannedQty || 0;
-                shippingContainer.append(rowNode);
-            });
-            if(total !== sum) shippingContainer.classList.add('error');
-
-            const summaryNode = CreateSummaryRow({plannedQty: sum}, viewField);
-            shippingContainer.append(summaryNode);
-        }
-
-        const CreatePlan = (list,total) => {
-            let sum = 0;
-            const viewField = ['siNo','siItemNo','piPlanQty'];
-            list.forEach( rowData => {
-                const rowNode = CreateRow( rowData, viewField );
-                planContainer.append(rowNode);
-                sum += rowData?.piPlanQty || 0;
-            })
-
-            if(total !== sum) planContainer.classList.add('error');
-
-            const summaryNode = CreateSummaryRow({piPlanQty:sum}, viewField);
-            planContainer.append(summaryNode);
-        }
-
-        const CreatePicking = (list,total) => {
-            let sum = 0;
-            const viewField = ['siNo', 'siItemNo', 'pickingQty'];
-            list.forEach( rowData => {
-                const rowNode = CreateRow( rowData, viewField);
-                pickingContainer.append(rowNode);
-                sum += rowData?.pickingQty || 0;
-            })
-
-            if(total !== sum) pickingContainer.classList.add('error');
-
-            const summaryNode = CreateSummaryRow({pickingQty:sum}, viewField);
-            pickingContainer.append(summaryNode);
-        }
-
-        const CreateClosing = (list,total) => {
-            let sum = 0;
-            const viewField = ['siNo', 'siItemNo', 'qty', 'closingDate'];
-            list.forEach( rowData => {
-                const rowNode = CreateRow(rowData, viewField);
-                closingContainer.append(rowNode);
-                sum += rowData?.qty || 0;
-            })
-
-            if(total !== sum) closingContainer.classList.add('error');
-
-            const summaryNode = CreateSummaryRow({qty:sum}, viewField);
-            closingContainer.append(summaryNode);
-        }
-
-        const CreateSending753 = (list,total) => {
-            let sum = 0;
-            const viewField = ['siNo', 'itemNo', 'itemQty'];
-            list.forEach( rowData => {
-                const rowNode = CreateRow(rowData, viewField);
-                sending753Container.append(rowNode);
-                sum += rowData?.itemQty || 0;
-            })
-
-            if(total !== sum) sending753Container.classList.add('error');
-
-            const summaryNode = CreateSummaryRow({itemQty:sum}, viewField);
-            sending753Container.append(summaryNode);
-        }
-
-        const CreateSending856 = (list,total) => {
-            let sum = 0;
-            const viewField = ['siNo', 'seq', 'itemQty'];
-            list.forEach( rowData => {
-                const rowNode = CreateRow(rowData, viewField);
-                sending856Container.append(rowNode);
-                sum += rowData?.itemQty || 0;
-            })
-
-            if(total !== sum) sending856Container.classList.add('error');
-
-            const summaryNode = CreateSummaryRow({itemQty:sum}, viewField);
-            sending856Container.append(summaryNode);
-        }
-
-        const CreateRow = (rowData,viewFields) => {
-            const row = document.createElement('div');
-            row.classList.add('row');
-
-            viewFields.forEach(field => {
-                const columnValue = rowData[field];
-                const col = document.createElement('span');
-
-                col.classList.add('col');
-                col.textContent = field === 'closingDate' ? columnValue?.split('T')[0] : columnValue;
-                col.title = columnValue;
-
-                if(field === 'siNo') col.classList.add('si_no');
-                if(field.toLowerCase().includes('qty')) col.classList.add('qty');
-                if(!isNaN(columnValue)) col.classList.add('number');
-
-                row.append(col);
-            });
-
-            return row;
-        }
-
-        const CreateSummaryRow = (rowData,viewFields) => {
-            const row = document.createElement('div');
-            row.classList.add('row');
-
-            viewFields.forEach(field => {
-                const columnValue = rowData[field];
-                const col = document.createElement('span');
-
-                col.classList.add('col','summary');
-                col.textContent = columnValue;
-                col.title = columnValue;
-
-                if(field === 'siNo') col.classList.add('si_no');
-                if(field.toLowerCase().includes('qty')) col.classList.add('qty');
-                if(!isNaN(columnValue)) col.classList.add('number');
-
-                row.append(col);
-            });
-
-            return row;
-        }
-
-    </script>
-
     <script th:inline="javascript">
-        const orderItem = [[${orderItem}]];
-        const shipping = [[${shipping}]];
-        const plan = [[${plan}]];
-        const picking = [[${picking}]];
-        const closing = [[${closing}]];
-        const sending753 = [[${sending753}]];
-        const sending856 = [[${sending856}]];
+        const gridBoxContainer = document.querySelector(".container");
 
+        const changeLayout = (_) => {
+            Loading.start();
+            gridBoxContainer.classList.toggle("block");
+            setTimeout(() => {
+                Loading.stop();
+            }, 500);
+        }
+
+        const getFields = (sortKeyList, addKeys) => {
+            return sortKeyList.concat(
+                Object.keys(addKeys || [])
+                    .filter(key => !sortKeyList.includes(key))
+            ).map(key => ({field: key}));
+        }
+
+        const initError = (gridNode,total,checkTotal) => {
+            if(total !== checkTotal) {
+                gridNode?.classList?.add('error');
+                gridNode?.parentNode?.classList?.add('error');
+            }
+        }
+
+
+        const orderItem = [[${orderItem}]];
         const total = orderItem.reduce((num, item) => num += item.itemQty || 0, 0);
 
-        CreateShipping(shipping,total);
-        CreatePlan(plan,total);
-        CreatePicking(picking,total);
-        CreateClosing(closing,total);
-        CreateSending753(sending753,total);
-        CreateSending856(sending856,total);
+        const shippingContainer = document.querySelector("#shipping-grid");
+        const shipping = [[${shipping}]];
+        const shippingTotal = shipping.reduce((num, item) => num += item.plannedQty || 0, 0);
+        const shippingGridFields = getFields(['siNo','plannedQty','siItemNo'],shipping[0]);
+        initError(shippingContainer, total, shippingTotal);
+
+
+        const planContainer = document.querySelector("#plan-grid");
+        const plan = [[${plan}]];
+        const planTotal = plan.reduce((num, item) => num += item.piPlanQty || 0, 0);
+        const planGridFields = getFields(['siNo','piPlanQty','siItemNo'],plan[0]);
+        initError(planContainer, total, planTotal);
+
+        const pickingContainer = document.querySelector("#picking-grid");
+        const picking = [[${picking}]];
+        const pickingTotal = picking.reduce((num, item) => num += item.pickingQty || 0, 0);
+        const pickingGridFields = getFields(['siNo','pickingQty','siItemNo'],picking[0]);
+        initError(picking, total, pickingTotal);
+
+        const closingContainer = document.querySelector("#closing-grid");
+        const closing = [[${closing}]];
+        const closingTotal = closing.reduce((num, item) => num += item.qty || 0, 0);
+        const closingGridFields = getFields(['siNo','qty', 'closingDate', 'siItemNo'],closing[0]);
+        initError(closingContainer, total, closingTotal);
+
+        const sending753Container = document.querySelector("#detail753-grid");
+        const sending753 = [[${sending753}]];
+        const sending753Total = sending753.reduce((num, item) => num += item.itemQty || 0, 0);
+        const sending753GridFields = getFields(['siNo','itemQty', 'itemNo'],sending753[0]);
+        initError(sending753Container, total, sending753Total);
+
+        const sending856Container = document.querySelector("#detail856-grid");
+        const sending856 = [[${sending856}]];
+        const sending856Total = sending856.reduce((num, item) => num += item.itemQty || 0, 0);
+        const sending856GridFields = getFields(['siNo','itemQty', 'seq'],sending856[0]);
+        initError(sending856Container, total, sending856Total);
+
+
+        agGrid.createGrid(shippingContainer, {
+            // Row Data: The data to be displayed.
+            rowData: shipping,
+            defaultColDef: {
+              width: 150,
+            },
+            columnDefs: shippingGridFields,
+            pinnedBottomRowData: [{siNo: 'Total', plannedQty: shippingTotal}],
+        });
+        agGrid.createGrid(planContainer, {
+            // Row Data: The data to be displayed.
+            rowData: plan,
+            defaultColDef: {
+                width: 150,
+            },
+            columnDefs: planGridFields,
+            pinnedBottomRowData: [{siNo: 'Total', piPlanQty: planTotal}],
+        });
+        agGrid.createGrid(pickingContainer, {
+            // Row Data: The data to be displayed.
+            rowData: picking,
+            defaultColDef: {
+                width: 150,
+            },
+            columnDefs: pickingGridFields,
+            pinnedBottomRowData: [{siNo: 'Total', pickingQty: pickingTotal}],
+        });
+        agGrid.createGrid(closingContainer, {
+            // Row Data: The data to be displayed.
+            rowData: closing,
+            defaultColDef: {
+                width: 150,
+            },
+            columnDefs: closingGridFields,
+            pinnedBottomRowData: [{siNo: 'Total', qty: closingTotal}],
+        });
+        agGrid.createGrid(sending753Container, {
+            // Row Data: The data to be displayed.
+            rowData: sending753,
+            defaultColDef: {
+                width: 150,
+            },
+            columnDefs: sending753GridFields,
+            pinnedBottomRowData: [{siNo: 'Total', itemQty: sending753Total}],
+        });
+        agGrid.createGrid(sending856Container, {
+            // Row Data: The data to be displayed.
+            rowData: sending856,
+            defaultColDef: {
+                width: 150,
+            },
+            columnDefs: sending856GridFields,
+            pinnedBottomRowData: [{siNo: 'Total', itemQty: sending856Total}],
+        });
+
     </script>
 </body>
 </html>

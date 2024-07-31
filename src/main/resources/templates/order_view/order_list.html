@@ -1,26 +1,55 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Order List</title>
-    <link rel="stylesheet" href="/css/common.css">
-    <script src="/js/loading.js" defer></script>
+    <link rel="stylesheet" href="/static/css/common.css">
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/ag-grid-community@32.0.2/styles/ag-grid.css" />
+    <script src="/static/js/loading.js" defer></script>
+    <script src="/static/js/ag-grid.js"></script>
 </head>
 <body>
 
+    <div id="order-grid" class="ag-theme-quartz" style="width: 500px; height: 500px;">
+
+    </div>
+
     <script>
 
-        fetch('/order/ODCO240717007919', {
-            method: 'get'
-        })
-            .then(res => res.json())
-            .then(data => console.log(data));
+        // Grid Options: Contains all of the Data Grid configurations
+        const gridOptions = {
+        // Row Data: The data to be displayed.
+            rowData: [
+                { make: "Tesla", model: "Model Y", price: 64950, electric: true },
+                { make: "Ford", model: "F-Series", price: 33850, electric: false },
+                { make: "Toyota", model: "Corolla", price: 29600, electric: false },
+            ],
+            // Column Definitions: Defines the columns to be displayed.
+            columnDefs: [
+                { field: "make" ,flex: 1},
+                { field: "model" ,flex: 1},
+                { field: "price" ,flex: 1},
+                { field: "electric" ,flex: 1}
+            ]
+        };
 
-        fetch('/order/ODCO240717007919/1', {
-            method: 'get'
-        })
-            .then(res => res.json())
-            .then(data => console.log(data));
+        // Your Javascript code to create the Data Grid
+        const orderGridNode = document.querySelector('#order-grid');
+        agGrid.createGrid(orderGridNode, gridOptions);
+
+        // fetch('/order/ODCO240717007919', {
+        //     method: 'get'
+        // })
+        //     .then(res => res.json())
+        //     .then(data => console.log(data));
+
+        // fetch('/order/ODCO240717007919/1', {
+        //     method: 'get'
+        // })
+        //     .then(res => res.json())
+        //     .then(data => console.log(data));
     </script>
 
 </body>
