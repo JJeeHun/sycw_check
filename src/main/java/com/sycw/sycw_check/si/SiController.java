@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -30,6 +31,8 @@ public class SiController {
             List<String> searchSiNoList = siNoList.stream()
                     .map(si -> (String) si.get("siNo"))
                     .toList();
+
+            if(searchSiNoList.isEmpty()) searchSiNoList = List.of("");
 
             List<ShippingEntity> shippingAll = siRepository.findShippingAll(searchSiNoList);
             List<PickingPlanEntity> planAll = siRepository.findPlanAll(searchSiNoList);

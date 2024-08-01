@@ -8,10 +8,82 @@
     <script th:src="@{/js/loading.js}" defer></script>
 
     <style>
+        :root {
+            --header-height: 50px;
+        }
+        .search-container {
+            height: var(--header-height);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .si-list {
+            display: flex;
+            height: calc(100vh - var(--header-height));
+            font-size: .7rem;
+            overflow: hidden;
+        }
+        .left-box {
+            flex: 1;
+        }
         #si-list-grid {
-            width: 720px;
-            height: 720px;
+            height: calc(100% - 50px);
+            padding-left: 15px;
+            font-size: .7rem;
+        }
+        .check-list {
+            position: relative;
+            display: flex;
+            flex-wrap: wrap;
+            flex: 3;
+            padding: 0px 15px;
+            font-size: .7rem;
+            transition: all .3s ease-in-out;
+        }
+        .check-list > div {
+            flex-basis: 33.3%;
+            padding: 0 10px;
+        }
+        .box > h2 ,.left-box > h2{
+            position: relative;
+            height: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px 0;
+        }
+        .box > div {
+            height: calc(100% - 50px);
+            font-size: .7rem;
+        }
 
+        .box button {
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+        }
+
+        .show {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%,-50%);
+            z-index: 10;
+            width: 100%;
+            height: 100%;
+        }
+        .show::before {
+            position: fixed;
+            top: 0;
+            left: 0;
+            content: "";
+            width: 100%;
+            height: 100%;
+            background-color: #ffffff;
+        }
+        .selected_order {
+            background-color: lightgreen;
         }
     </style>
 </head>
@@ -26,9 +98,50 @@
         </form>
     </section>
     <section class="si-list">
-        <div id="si-list-grid" class="ag-theme-quartz"></div>
+        <div class="left-box">
+            <h2><span>SI NO</span></h2>
+            <div id="si-list-grid" class="ag-theme-quartz"></div>
+        </div>
+        <div class="check-list">
+            <div class="box">
+                <h2><span>Shipping</span>
+                    <button onclick="openClose(this)">Open</button>
+                </h2>
+                <div id="shipping-grid" class="ag-theme-quartz"></div>
+            </div>
+            <div class="box">
+                <h2><span>Plan</span>
+                    <button onclick="openClose(this)">Open</button>
+                </h2>
+            <div id="plan-grid" class="ag-theme-quartz"></div>
+            </div>
+            <div class="box">
+                <h2><span>Picking</span>
+                    <button onclick="openClose(this)">Open</button>
+                </h2>
+            <div id="picking-grid" class="ag-theme-quartz"></div>
+            </div>
+
+            <div class="box">
+                <h2><span>Closing</span>
+                    <button onclick="openClose(this)">Open</button>
+                </h2>
+            <div id="closing-grid" class="ag-theme-quartz"></div>
+            </div>
+            <div class="box">
+                <h2><span>Sending 753</span>
+                    <button onclick="openClose(this)">Open</button>
+                </h2>
+            <div id="sending753-grid" class="ag-theme-quartz"></div>
+            </div>
+            <div class="box">
+                <h2><span>Sending 856</span>
+                    <button onclick="openClose(this)">Open</button>
+                </h2>
+            <div id="sending856-grid" class="ag-theme-quartz"></div>
+            </div>
+        </div>
     </section>
-    <section class="check-list"></section>
 
     <script th:inline="javascript">
         const getFields = (sortKeyList, addKeys) => {
@@ -37,12 +150,25 @@
                     .filter(key => !sortKeyList.includes(key))
             ).map(key => ({field: key}));
         }
+        const openClose = (button) => {
+            const boxNode = button.closest('.box');
+            boxNode.classList.toggle('show');
+            button.textContent = button.textContent === 'Open' ? 'Close' : 'Open';
+        }
 
 
         const dateNode = document.querySelector('#date');
         const siListGridNode = document.querySelector('#si-list-grid');
+        const shippingGridNode = document.querySelector('#shipping-grid');
+        const planGridNode = document.querySelector('#plan-grid');
+        const pickingGridNode = document.querySelector('#picking-grid');
+        const closingGridNode = document.querySelector('#closing-grid');
+        const sending753GridNode = document.querySelector('#sending753-grid');
+        const sending856GridNode = document.querySelector('#sending856-grid');
+
         const defaultDate = [[${defaultDate}]];
         const siList = [[${siList}]];
+
         const shipping = [[${shipping}]];
         const plan = [[${plan}]];
         const picking = [[${picking}]];
@@ -50,29 +176,155 @@
         const sending753 = [[${sending753}]];
         const sending856 = [[${sending856}]];
 
-        dateNode.value = defaultDate;
+        let selectedSiNo = siList?.[0]?.siNo;
+        let selectedOrder = shipping?.[0].systemOrderNo;
+        let selectedOORD = shipping?.[0].oordNo;
 
+        dateNode.value = defaultDate;
 
         agGrid.createGrid(siListGridNode, {
             // Row Data: The data to be displayed.
             rowData: siList,
             defaultColDef: { width: 100, filter: true, editable: true,},
-            rowSelection: 'single', // 단일 행 선택filter
+            rowSelection: 'single',
             columnDefs: [
-                {field: 'siNo', width: 200},
-                {field: 'etd', width: 200},
+                {field: 'siNo', width: 150},
+                {field: 'etd', width: 120},
+                {field: 'planQty'},
                 {field: 'detailCnt'},
                 {field: 'headCnt'},
             ],
             onRowSelected: event => {
-                // const {data,node} = event;
-                // if(node.selected) {
-                //     const center = getCenter(1200,720);
-                //     window.open("/si/find-contact/" + data.contactOrdNo, data.contactOrdNo, `width=1200,height=720,left=${center.left},top=${center.top}`);
-                // }
+                const {data,node} = event;
+                if(node.selected) {
+                    selectedSiNo = data.siNo;
+                    changeValue();
+                }
             },
         })
 
+        const changeValue = () => {
+            const newShipping = shipping.filter(s => s.siNo === selectedSiNo);
+            shippingGrid.setGridOption('rowData', newShipping);
+            shippingGrid.setGridOption('pinnedBottomRowData',
+                [{siNo: 'Total', plannedQty: newShipping.reduce((sum,s) => sum += s.plannedQty,0)}]
+            );
+
+            const newPlan = plan.filter(s => s.siNo === selectedSiNo);
+            planGrid.setGridOption('rowData', newPlan);
+            planGrid.setGridOption('pinnedBottomRowData',
+                [{
+                    siNo:'Total',
+                    piPlanQty: newPlan.reduce((sum,p) => sum += p.piPlanQty,0)
+                }]
+            )
+
+            const newPicking = picking.filter(f => f.siNo === selectedSiNo);
+            pickingGrid.setGridOption('rowData', newPicking);
+            pickingGrid.setGridOption('pinnedBottomRowData',
+                [{
+                    siNo:'Total',
+                    pickingQty: newPicking.reduce((sum,p) => sum += p.pickingQty,0)
+                }]
+            )
+
+            const newClosing = closing.filter(f => f.siNo === selectedSiNo);
+            closingGrid.setGridOption('rowData', newClosing);
+            closingGrid.setGridOption('pinnedBottomRowData',
+                [{
+                    siNo:'Total',
+                    qty: newClosing.reduce((sum,p) => sum += p.qty,0)
+                }]
+            )
+
+            const newSending753 = sending753.filter(f => f.siNo === selectedSiNo);
+            sending753Grid.setGridOption('rowData', newSending753);
+            sending753Grid.setGridOption('pinnedBottomRowData',
+                [{
+                    siNo:'Total',
+                    itemQty: newSending753.reduce((sum,p) => sum += p.itemQty,0)
+                }]
+            )
+
+            const newSending856 = sending856.filter(f => f.siNo === selectedSiNo);
+            sending856Grid.setGridOption('rowData', newSending856);
+            sending856Grid.setGridOption('pinnedBottomRowData',
+                [{
+                    siNo:'Total',
+                    itemQty: newSending856.reduce((sum,p) => sum += p.itemQty,0)
+                }]
+            )
+
+        };
+
+        const selected_order = ({data}) => data.systemOrderNo === selectedOrder || data.oordNo === selectedOORD;
+        const defaultGridOptions = {
+            defaultColDef: { width: 120, filter: true, editable: true,},
+            rowSelection: 'single',
+        }
+        const shippingGrid = agGrid.createGrid(shippingGridNode,{
+            ...defaultGridOptions,
+            // rowData: shipping,
+            columnDefs: getFields(['siNo','siItemNo','plannedQty'],shipping[0]),
+            rowClassRules: {
+                selected_order,
+            },
+            onRowSelected: event => {
+                const {data,node} = event;
+                if(node.selected) {
+                    selectedOrder = data.systemOrderNo;
+                    selectedOORD = data.oordNo;
+                    shippingGrid.redrawRows();
+                    planGrid.redrawRows();
+                    pickingGrid.redrawRows();
+                    closingGrid.redrawRows();
+                    sending753Grid.redrawRows();
+                    sending856Grid.redrawRows();
+                }
+            },
+        })
+        const planGrid = agGrid.createGrid(planGridNode,{
+            ...defaultGridOptions,
+            // rowData: plan,
+            columnDefs: getFields(['siNo','siItemNo','piPlanQty'],plan[0]),
+            rowClassRules: {
+                selected_order,
+            }
+        })
+        const pickingGrid = agGrid.createGrid(pickingGridNode,{
+            ...defaultGridOptions,
+            // rowData: picking,
+            columnDefs: getFields(['siNo','siItemNo','pickingQty'],picking[0]),
+            rowClassRules: {
+                selected_order,
+            }
+        })
+        const closingGrid = agGrid.createGrid(closingGridNode,{
+            ...defaultGridOptions,
+            // rowData: closing,
+            columnDefs: getFields(['siNo','siItemNo','qty'],closing[0]),
+            rowClassRules: {
+                selected_order,
+            }
+        })
+        const sending753Grid = agGrid.createGrid(sending753GridNode,{
+            ...defaultGridOptions,
+            // rowData: sending753,
+            columnDefs: getFields(['siNo','itemQty'],sending753[0]),
+            rowClassRules: {
+                selected_order,
+            }
+        })
+        const sending856Grid = agGrid.createGrid(sending856GridNode,{
+            ...defaultGridOptions,
+            // rowData: sending856,
+            columnDefs: getFields(['siNo','itemQty'],sending856[0]),
+            rowClassRules: {
+                selected_order,
+            }
+        })
+
+        changeValue();
 
     </script>
 </body>
