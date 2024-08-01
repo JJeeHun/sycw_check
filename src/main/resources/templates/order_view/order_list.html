@@ -1,55 +1,110 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>Order List</title>
-    <link rel="stylesheet" href="/static/css/common.css">
-    <link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/ag-grid-community@32.0.2/styles/ag-grid.css" />
-    <script src="/static/js/loading.js" defer></script>
-    <script src="/static/js/ag-grid.js"></script>
+    <link rel="stylesheet" th:href="@{/css/common.css}">
+    <script th:src="@{/js/ag-grid.js}"></script>
+    <script th:src="@{/js/loading.js}" defer></script>
+
+    <style>
+        :root {
+            --header-height: 100px;
+        }
+        #order-grid {
+            width: 100%;
+            height: 100%
+        }
+        .search-section {
+            width: 100%;
+            height: var(--header-height);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            width: 100%;
+            height: calc(100vh - var(--header-height));
+            padding: 0 20px 20px 20px;
+        }
+
+        .popup {
+            border:none;
+            color: blue;
+            text-decoration: underline;
+            cursor: pointer;
+            background-color: transparent;
+            transition: font-weight .1s ease-in-out;
+        }
+        .popup:hover {
+            font-weight: bold;
+        }
+
+    </style>
 </head>
 <body>
+    <section class="search-section">
+        <form action="./view" method="get">
+            <label for="date">
+                Order Receipt Date :
+            </label>
+            <input type="date" name="date" id="date" placeholder="Order Receipt Date" >
+            <button>Submit</button>
+        </form>
 
-    <div id="order-grid" class="ag-theme-quartz" style="width: 500px; height: 500px;">
+    </section>
 
+    <div class="container">
+        <div id="order-grid" class="ag-theme-quartz"></div>
     </div>
 
-    <script>
+    <script th:inline="javascript">
+        const orders = [[${orders}]];
+        const dateNode = document.querySelector('#date');
+        dateNode.value = [[${defaultDate}]];
+
+        const getFields = (sortKeyList, addKeys) => {
+            return sortKeyList.concat(
+                Object.keys(addKeys || [])
+                    .filter(key => !sortKeyList.includes(key))
+            ).map(key => ({field: key}));
+        }
 
         // Grid Options: Contains all of the Data Grid configurations
         const gridOptions = {
-        // Row Data: The data to be displayed.
-            rowData: [
-                { make: "Tesla", model: "Model Y", price: 64950, electric: true },
-                { make: "Ford", model: "F-Series", price: 33850, electric: false },
-                { make: "Toyota", model: "Corolla", price: 29600, electric: false },
-            ],
-            // Column Definitions: Defines the columns to be displayed.
+            // Row Data: The data to be displayed.
+            rowData: orders,
+            defaultColDef: { width: 200, filter: true, editable: true,},
+            rowSelection: 'single', // 단일 행 선택filter
             columnDefs: [
-                { field: "make" ,flex: 1},
-                { field: "model" ,flex: 1},
-                { field: "price" ,flex: 1},
-                { field: "electric" ,flex: 1}
-            ]
+                {   field: 'popup',
+                    width: 100,
+                    cellRenderer: function(params) {
+                        const button = document.createElement('button');
+                        button.innerHTML = 'Open';
+                        button.classList.add('popup');
+                        button.addEventListener('click', function() {
+                            const {data} = params;
+                            const center = getCenter(1200,720);
+                            window.open("/si/find-contact/" + data.contactOrdNo, data.contactOrdNo, `width=1200,height=720,left=${center.left},top=${center.top}`);
+                        });
+                        return button;
+                    }
+                },
+                ...getFields(['systemOrderNo','contactOrdNo'],orders[0])
+            ],
+            onRowSelected: event => {
+                // const {data,node} = event;
+                // if(node.selected) {
+                //     const center = getCenter(1200,720);
+                //     window.open("/si/find-contact/" + data.contactOrdNo, data.contactOrdNo, `width=1200,height=720,left=${center.left},top=${center.top}`);
+                // }
+            },
         };
 
         // Your Javascript code to create the Data Grid
         const orderGridNode = document.querySelector('#order-grid');
         agGrid.createGrid(orderGridNode, gridOptions);
-
-        // fetch('/order/ODCO240717007919', {
-        //     method: 'get'
-        // })
-        //     .then(res => res.json())
-        //     .then(data => console.log(data));
-
-        // fetch('/order/ODCO240717007919/1', {
-        //     method: 'get'
-        // })
-        //     .then(res => res.json())
-        //     .then(data => console.log(data));
     </script>
 
 </body>

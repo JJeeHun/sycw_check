@@ -8,37 +8,9 @@
      <script th:src="@{/js/loading.js}" defer></script>
 <!--    <script src="/static/js/ag-grid.js"></script>-->
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-        }
-        body {
-            margin: 0;
-        }
-        /* 전체 스크롤바 */
-        ::-webkit-scrollbar {
-            width: 5px; /* 스크롤바의 너비 */
-        }
-
-        /* 스크롤바의 트랙 */
-        ::-webkit-scrollbar-track {
-            background: lightgray; /* 트랙의 배경색 */
-            border-radius: 10px; /* 트랙의 모서리를 둥글게 */
-        }
-
-        /* 스크롤바의 핸들 */
-        ::-webkit-scrollbar-thumb {
-            background: #888; /* 핸들의 배경색 */
-            border-radius: 10px; /* 핸들의 모서리를 둥글게 */
-        }
-
-        /* 핸들이 호버될 때 */
-        ::-webkit-scrollbar-thumb:hover {
-            background: #555; /* 핸들이 호버될 때의 색상 */
-        }
-
         :root {
             --title-height: 50px;
+            --header-height: 250px;
         }
 
         header {
@@ -46,7 +18,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: var(--title-height);
+            height: var(--header-height);
         }
         h2 {
             font-size: .8rem;
@@ -58,7 +30,7 @@
         }
         .container {
             width: 100vw;
-            height: calc(100vh - var(--title-height));
+            height: calc(100vh - var(--header-height));
             display: flex;
         }
         .container.block {
@@ -77,43 +49,86 @@
         }
         .fixed-layout-change {
             position: absolute;
-            top: 50%;
+            top: 215px;
             right: 10px;
         }
         .error {
             color: red;
         }
 
+        .item-selected {
+            background-color: lightgreen;
+        }
+        .box h2 {
+            position: relative;
+        }
+        .box button {
+            display: none;
+        }
+        .container.block .box button {
+            display: inherit;
+        }
+        .container.block .box button {
+            position: absolute;
+            top: 50%;
+            right: 0;
+            transform: translateY(-50%);
+        }
+        .container.block .box.close {
+            height: var(--title-height);
+            border-bottom: 1px solid lightgray;
+        }
+
     </style>
 </head>
 <body>
     <header>
-        <h1>Order Inner SI NO</h1>
+        <div class="box">
+            <div id="order-item-grid" class="ag-theme-quartz grid"></div>
+        </div>
         <button class="fixed-layout-change" onclick="changeLayout();">Layout Change</button>
     </header>
     <div class="container">
         <div class="box">
-            <h2>Shipping(oo0200)</h2>
+            <h2>
+                <span>Shipping(oo0200)</span>
+                <button onclick="openClose(this);">Close</button>
+            </h2>
             <div id="shipping-grid" class="ag-theme-quartz grid"></div>
         </div>
         <div class="box">
-            <h2>Plan(oo0300)</h2>
+            <h2>
+                <span>Plan(oo0300)</span>
+                <button onclick="openClose(this);">Close</button>
+            </h2>
             <div id="plan-grid" class="ag-theme-quartz"></div>
         </div>
         <div class="box">
-            <h2>Picking(oo0400)</h2>
+            <h2>
+                <span>Picking(oo0400)</span>
+                <button onclick="openClose(this);">Close</button>
+            </h2>
             <div id="picking-grid" class="ag-theme-quartz"></div>
         </div>
         <div class="box">
-            <h2>Closing(oo0500)</h2>
+            <h2>
+                <span>Closing(oo0500)</span>
+                <button onclick="openClose(this);">Close</button>
+            </h2>
             <div id="closing-grid" class="ag-theme-quartz"></div>
         </div>
         <div class="box">
-            <h2>Send753(su753d)</h2>
+            <h2>
+                <span>Send753(su753d)</span>
+                <button onclick="openClose(this);">Close</button>
+            </h2>
             <div id="detail753-grid" class="ag-theme-quartz"></div>
         </div>
         <div class="box">
-            <h2>Send856(su856d)</h2>
+            <h2>
+                <span>Send856(su856d)</span>
+                <button onclick="openClose(this);">Close</button>
+            </h2>
             <div id="detail856-grid" class="ag-theme-quartz"></div>
         </div>
 
@@ -144,8 +159,16 @@
             }
         }
 
+        const openClose = button => {
+            const boxContainer = button.closest('.box');
+            boxContainer.classList.toggle('close');
+            button.textContent = button.textContent === 'Open' ? 'Close' : 'Open';
+        }
 
+
+        const orderItemContainer = document.querySelector("#order-item-grid");
         const orderItem = [[${orderItem}]];
+        const orderItemGridFields = getFields(['systemOrderNo','itemQty','itemNo'],orderItem[0]);
         const total = orderItem.reduce((num, item) => num += item.itemQty || 0, 0);
 
         const shippingContainer = document.querySelector("#shipping-grid");
@@ -185,60 +208,85 @@
         const sending856GridFields = getFields(['siNo','itemQty', 'seq'],sending856[0]);
         initError(sending856Container, total, sending856Total);
 
+        const itemChildDefaultOption = {
+            defaultColDef: {width: 150, filter: true, editable: true,},
+            rowSelection: 'single', // 단일 행 선택
+            rowClassRules: {
+                'item-selected': param => {
+                    const {data, node} = param;
+                    let checkItemNo = data.itemNo;
+                    if (data.oordItemNo) checkItemNo = data.oordItemNo;
+                    return data.systemOrderNo === checks.systemOrderNo && checks.itemNo == checkItemNo;
+                }
+            }
+        };
 
-        agGrid.createGrid(shippingContainer, {
+        const checks = {
+            systemOrderNo: '',
+            itemNo:'',
+        }
+
+        agGrid.createGrid(orderItemContainer, {
+            // Row Data: The data to be displayed.
+            rowData: orderItem,
+            defaultColDef: {width: 150, filter: true, editable: true,},
+            rowSelection: 'single', // 단일 행 선택
+            columnDefs: orderItemGridFields,
+            pinnedBottomRowData: [{systemOrderNo: 'Total', itemQty: total}],
+            onRowSelected: event => {
+                const {data, node} = event;
+                if (!node.selected) return;
+                checks.systemOrderNo = data.systemOrderNo;
+                checks.itemNo = data.itemNo;
+                shippingGrid.redrawRows();
+                planGrid.redrawRows();
+                pickingGrid.redrawRows();
+                closingGrid.redrawRows();
+                sending753Grid.redrawRows();
+                sending856Grid.redrawRows();
+            },
+        });
+        const shippingGrid = agGrid.createGrid(shippingContainer, {
             // Row Data: The data to be displayed.
             rowData: shipping,
-            defaultColDef: {
-              width: 150,
-            },
             columnDefs: shippingGridFields,
             pinnedBottomRowData: [{siNo: 'Total', plannedQty: shippingTotal}],
+            ...itemChildDefaultOption
         });
-        agGrid.createGrid(planContainer, {
+        const planGrid = agGrid.createGrid(planContainer, {
             // Row Data: The data to be displayed.
             rowData: plan,
-            defaultColDef: {
-                width: 150,
-            },
             columnDefs: planGridFields,
             pinnedBottomRowData: [{siNo: 'Total', piPlanQty: planTotal}],
+            ...itemChildDefaultOption
         });
-        agGrid.createGrid(pickingContainer, {
+        const pickingGrid = agGrid.createGrid(pickingContainer, {
             // Row Data: The data to be displayed.
             rowData: picking,
-            defaultColDef: {
-                width: 150,
-            },
             columnDefs: pickingGridFields,
             pinnedBottomRowData: [{siNo: 'Total', pickingQty: pickingTotal}],
+            ...itemChildDefaultOption
         });
-        agGrid.createGrid(closingContainer, {
+        const closingGrid = agGrid.createGrid(closingContainer, {
             // Row Data: The data to be displayed.
             rowData: closing,
-            defaultColDef: {
-                width: 150,
-            },
             columnDefs: closingGridFields,
             pinnedBottomRowData: [{siNo: 'Total', qty: closingTotal}],
+            ...itemChildDefaultOption
         });
-        agGrid.createGrid(sending753Container, {
+        const sending753Grid = agGrid.createGrid(sending753Container, {
             // Row Data: The data to be displayed.
             rowData: sending753,
-            defaultColDef: {
-                width: 150,
-            },
             columnDefs: sending753GridFields,
             pinnedBottomRowData: [{siNo: 'Total', itemQty: sending753Total}],
+            ...itemChildDefaultOption
         });
-        agGrid.createGrid(sending856Container, {
+        const sending856Grid = agGrid.createGrid(sending856Container, {
             // Row Data: The data to be displayed.
             rowData: sending856,
-            defaultColDef: {
-                width: 150,
-            },
             columnDefs: sending856GridFields,
             pinnedBottomRowData: [{siNo: 'Total', itemQty: sending856Total}],
+            ...itemChildDefaultOption
         });
 
     </script>

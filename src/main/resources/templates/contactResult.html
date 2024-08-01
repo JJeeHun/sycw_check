@@ -23,9 +23,13 @@
             flex: 1;
             text-align: center;
             padding: 0 5px;
+            white-space: nowrap;
+            overflow: auto;
         }
-        .orderRow > span.order_no {
-            flex: 2;
+        .orderRow > span.order_no ,
+        .orderRow > span.sending753,
+        .orderRow > span.sending856{
+            flex: 1.25;
         }
         .orderRow > span.order_no > button {
             display: none;
@@ -66,15 +70,15 @@
     <div id="container" class="box">
         <div class="orderRow">
             <span class="order_no">Contact Order No</span>
-            <span class="original">original</span>
-            <span class="order">order</span>
-            <span class="gi">gi</span>
-            <span class="shipping">shipping</span>
-            <span class="plan">plan</span>
-            <span class="picking">picking</span>
-            <span class="closing">closing</span>
-            <span class="sending753">sending753</span>
-            <span class="sending856">sending856</span>
+            <span class="original">Custom Qty</span>
+            <span class="order">Order(po0801)</span>
+            <span class="gi">Confirm(oo0100)</span>
+            <span class="shipping">Shipping(oo0201)</span>
+            <span class="plan">Plan(oo0300)</span>
+            <span class="picking">Picking(oo0400)</span>
+            <span class="closing">Closing(oo0500)</span>
+            <span class="sending753">Sending753(su753d)</span>
+            <span class="sending856">Sending856(su856d)</span>
         </div>
     </div>
 

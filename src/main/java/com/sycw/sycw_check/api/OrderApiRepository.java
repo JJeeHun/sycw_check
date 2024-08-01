@@ -6,11 +6,15 @@ import org.apache.ibatis.annotations.Select;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
 @Mapper
 public interface OrderApiRepository {
+
+    @Select("select * from tb_po0800 where ORDER_RECEIPT_DATE = #{date}")
+    public List<Order> findOrderAll(LocalDate date);
 
     @Select("select * from tb_po0801 where system_order_no = #{systemOrderNo}")
     public List<OrderItemEntity> findOrderItemAll(String systemOrderNo);
