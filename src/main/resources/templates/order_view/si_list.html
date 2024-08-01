@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SI Check</title>
+    <link rel="stylesheet" th:href="@{/css/common.css}">
+    <script th:src="@{/js/ag-grid.js}"></script>
+    <script th:src="@{/js/loading.js}" defer></script>
+
+    <style>
+        #si-list-grid {
+            width: 720px;
+            height: 720px;
+
+        }
+    </style>
+</head>
+<body>
+    <section class="search-container">
+        <form action="./si" method="get">
+            <label for="date">
+                Order Receipt Date :
+            </label>
+            <input type="date" name="date" id="date" placeholder="Order Receipt Date" >
+            <button>Submit</button>
+        </form>
+    </section>
+    <section class="si-list">
+        <div id="si-list-grid" class="ag-theme-quartz"></div>
+    </section>
+    <section class="check-list"></section>
+
+    <script th:inline="javascript">
+        const getFields = (sortKeyList, addKeys) => {
+            return sortKeyList.concat(
+                Object.keys(addKeys || [])
+                    .filter(key => !sortKeyList.includes(key))
+            ).map(key => ({field: key}));
+        }
+
+
+        const dateNode = document.querySelector('#date');
+        const siListGridNode = document.querySelector('#si-list-grid');
+        const defaultDate = [[${defaultDate}]];
+        const siList = [[${siList}]];
+        const shipping = [[${shipping}]];
+        const plan = [[${plan}]];
+        const picking = [[${picking}]];
+        const closing = [[${closing}]];
+        const sending753 = [[${sending753}]];
+        const sending856 = [[${sending856}]];
+
+        dateNode.value = defaultDate;
+
+
+        agGrid.createGrid(siListGridNode, {
+            // Row Data: The data to be displayed.
+            rowData: siList,
+            defaultColDef: { width: 100, filter: true, editable: true,},
+            rowSelection: 'single', // 단일 행 선택filter
+            columnDefs: [
+                {field: 'siNo', width: 200},
+                {field: 'etd', width: 200},
+                {field: 'detailCnt'},
+                {field: 'headCnt'},
+            ],
+            onRowSelected: event => {
+                // const {data,node} = event;
+                // if(node.selected) {
+                //     const center = getCenter(1200,720);
+                //     window.open("/si/find-contact/" + data.contactOrdNo, data.contactOrdNo, `width=1200,height=720,left=${center.left},top=${center.top}`);
+                // }
+            },
+        })
+
+
+    </script>
+</body>
+</html>

@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -28,6 +29,7 @@ public class ApiViews {
             model.addAttribute("defaultDate", date);
         }else {
             model.addAttribute("defaultDate", LocalDate.now());
+            model.addAttribute("orders", new ArrayList<>());
         }
         return "order_view/order_list";
     }
