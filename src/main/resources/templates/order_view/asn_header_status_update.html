@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>ASN Header Update</title>
+    <link rel="stylesheet" th:href="@{/css/common.css}">
+    <script th:src="@{/js/ag-grid.js}"></script>
+    <script th:src="@{/js/loading.js}" defer></script>
+
+    <style>
+        :root {
+            --header-height: 100px;
+            --inforamtion-height: 50px;
+            --bg-color: #0d6efd;
+            --bg-hover-color: #0b5ed7;
+        }
+        #asn-grid {
+            width: 100%;
+            height: 95%
+        }
+        .search-section {
+            width: 100%;
+            height: var(--header-height);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .asn-information {
+            height: var(--inforamtion-height);
+            display: flex;
+            justify-content: space-evenly;
+        }
+        .box > span {
+            padding: 0 10px;
+        }
+        .container {
+            width: 100%;
+            height: calc(100vh - var(--header-height) - var(--inforamtion-height));
+            padding: 0 20px 20px 20px;
+        }
+        .button-box {
+            display: flex;
+            justify-content: flex-end;
+            padding: 9px 5px;
+        }
+        .button-box > button {
+            background-color: var(--bg-color);
+            border: var(--bg-color);
+            color: #ffffff;
+            border-radius: 5px;
+            padding: 10px 20px;
+            font-weight: 600;
+            letter-spacing: .5px;
+            transition: background-color .3s ease-in-out;
+        }
+        .button-box > button:hover {
+            background-color: var(--bg-hover-color);
+        }
+
+        #customer {
+            margin-left: 5px;
+        }
+        .input-box {
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <section class="search-section">
+        <a href="/home" class="home"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--!Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.--><path d="M575.8 255.5c0 18-15 32.1-32 32.1l-32 0 .7 160.2c0 2.7-.2 5.4-.5 8.1l0 16.2c0 22.1-17.9 40-40 40l-16 0c-1.1 0-2.2 0-3.3-.1c-1.4 .1-2.8 .1-4.2 .1L416 512l-24 0c-22.1 0-40-17.9-40-40l0-24 0-64c0-17.7-14.3-32-32-32l-64 0c-17.7 0-32 14.3-32 32l0 64 0 24c0 22.1-17.9 40-40 40l-24 0-31.9 0c-1.5 0-3-.1-4.5-.2c-1.2 .1-2.4 .2-3.6 .2l-16 0c-22.1 0-40-17.9-40-40l0-112c0-.9 0-1.9 .1-2.8l0-69.7-32 0c-18 0-32-14-32-32.1c0-9 3-17 10-24L266.4 8c7-7 15-8 22-8s15 2 21 7L564.8 231.5c8 7 12 15 11 24z"/></svg></a>
+        <div class="input-box">
+            <label for="customer">
+                Customer :
+            </label>
+            <select name="customer" id="customer" onchange="findCustomer()"></select>
+        </div>
+        <div class="input-box">
+            <label for="create_date">
+                Create Date :
+            </label>
+            <input type="date" name="create_date" id="create_date" onchange="findCustomer()">
+        </div>
+<!--        <button onclick="findCustomer();">Submit</button>-->
+    </section>
+    <div class="asn-information">
+        <div class="box">
+            Amazon
+            <span id="amazon">0</span>
+        </div>
+        <div class="box">
+            Airmega
+            <span id="airmega">0</span>
+        </div>
+        <div class="box">
+            WalMart
+            <span id="walmart">0</span>
+        </div>
+        <div class="box">
+            The Home Depot
+            <span id="theHomeDepot">0</span>
+        </div>
+        <div class="box">
+            Target
+            <span id="target">0</span>
+        </div>
+    </div>
+    <div class="container">
+        <div id="asn-grid" class="ag-theme-quartz"></div>
+        <div class="button-box">
+            <button onclick="asnSave();">ASN 상태 Update</button>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        const customerList = [[${customer}]];
+        const asnGridNode = document.querySelector("#asn-grid");
+        const selectCustomerNode = document.querySelector("#customer");
+        const createDateNode = document.querySelector("#create_date");
+        const information = {
+            amazon: {node: document.querySelector("#amazon"), no: '901013'},
+            airmega: {node: document.querySelector("#airmega"), no: '901104'},
+            walmart: {node: document.querySelector("#walmart"), no: '901113'},
+            theHomeDepot: {node: document.querySelector("#theHomeDepot"), no: '903008'},
+            target: {node: document.querySelector("#target"), no: '910020'},
+        }
+        let asnHeaderData = [[${asnHeaders}]]?.map( h => {
+            const customerNo = h.receiverId.split('_')[0];
+            h.customerNo = customerNo;
+            return h;
+        });
+
+        const createOptions = (list) => {
+            return '<option value="">Selected</option>' +
+                list.map(customer => `<option value="${customer.CUSTOMER_NO}">${customer.CUSTOMER_NAME}</option>`)
+                .join('');
+        }
+
+        const getFields = (sortKeyList, addKeys) => {
+            return sortKeyList.concat(
+                Object.keys(addKeys || [])
+                    .filter(key => !sortKeyList.includes(key))
+            ).map(key => ({field: key}));
+        }
+
+        const findCustomer = () => {
+            const filterData = asnHeaderData.filter(h => {
+                let expression = h.createDate === createDateNode.value?.replaceAll('-','');
+                if(expression && selectCustomerNode.value) expression = h.customerNo === selectCustomerNode.value;
+                return expression;
+            });
+            asnGrid.setGridOption('rowData',filterData);
+            initInformation();
+        }
+
+        const initInformation = () => {
+            for (const type in information) {
+                const node = information[type].node;
+                const data = asnHeaderData.filter(h => h.customerNo === information[type].no && h.createDate === createDateNode.value?.replaceAll('-', ''));
+                node.parentElement.classList.remove('error');
+                node.textContent = data.length;
+                if(data.length) node.parentElement.classList.add('error')
+            }
+        }
+
+        const asnSave = () => {
+            const saveData = asnGrid.getSelectedNodes().map( row => row.data );
+
+            if( saveData.length < 1 ) return alert("선택한 데이터가 없습니다.");
+
+            const isOk = confirm('운영에 반영됩니다. 진행하시겠습니까?');
+
+            if(!isOk) return;
+
+            Loading.start();
+
+            fetch("/asn/header", {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(saveData),
+            })
+            .then(async res => {
+                Loading.stop();
+
+                if (res.status === 200) {
+                    asnHeaderData = asnHeaderData.filter(h => !saveData.find(d => d === h));
+                    findCustomer();
+                }
+
+                alert(await res.text());
+            })
+            .catch(err => Loading.stop());
+        }
+
+        // Grid Options: Contains all of the Data Grid configurations
+        const gridOptions = {
+            // Row Data: The data to be displayed.
+            rowData: [],
+            defaultColDef: { width: 200, filter: true, editable: true},
+            rowSelection: 'multiple', // 단일 행 선택filter
+            rowDragManaged: true, // 행 드래그 관리 활성화
+            animateRows: true, // 행 애니메이션 활성화
+            columnDefs: [
+                {
+                    headerCheckboxSelection: true, // 헤더에 체크박스 추가
+                    checkboxSelection: true,       // 각 행에 체크박스 추가
+                    headerCheckboxSelectionFilteredOnly: true, // 현재 필터된 행에만 전체 선택 적용
+                    width: 80
+                },
+                {
+                    field: 'tranStatus',
+                    headerName: 'Status',
+                    width: 100,
+                    valueFormatter: param => param.value == '15' ? '미전송' : '전송',
+                },
+                ...getFields(['siNo', 'interfaceId', 'functionCode', 'bolNo'], asnHeaderData[0])
+            ],
+
+        };
+
+        const asnGrid = agGrid.createGrid(asnGridNode, gridOptions);
+        selectCustomerNode.innerHTML = createOptions(customerList);
+        createDateNode.value = new Date().toISOString().split('T')[0];
+        findCustomer();
+        initInformation();
+    </script>
+
+</body>
+</html>

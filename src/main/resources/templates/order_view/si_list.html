@@ -85,16 +85,28 @@
         .selected_order {
             background-color: lightgreen;
         }
+        .popup {
+            border:none;
+            color: blue;
+            text-decoration: underline;
+            cursor: pointer;
+            background-color: transparent;
+            transition: font-weight .1s ease-in-out;
+        }
+        .popup:hover {
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
     <section class="search-container">
+        <a href="/home" class="home"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--!Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.--><path d="M575.8 255.5c0 18-15 32.1-32 32.1l-32 0 .7 160.2c0 2.7-.2 5.4-.5 8.1l0 16.2c0 22.1-17.9 40-40 40l-16 0c-1.1 0-2.2 0-3.3-.1c-1.4 .1-2.8 .1-4.2 .1L416 512l-24 0c-22.1 0-40-17.9-40-40l0-24 0-64c0-17.7-14.3-32-32-32l-64 0c-17.7 0-32 14.3-32 32l0 64 0 24c0 22.1-17.9 40-40 40l-24 0-31.9 0c-1.5 0-3-.1-4.5-.2c-1.2 .1-2.4 .2-3.6 .2l-16 0c-22.1 0-40-17.9-40-40l0-112c0-.9 0-1.9 .1-2.8l0-69.7-32 0c-18 0-32-14-32-32.1c0-9 3-17 10-24L266.4 8c7-7 15-8 22-8s15 2 21 7L564.8 231.5c8 7 12 15 11 24z"/></svg></a>
         <form action="./si" method="get">
             <label for="date">
                 Order Receipt Date :
             </label>
             <input type="date" name="date" id="date" placeholder="Order Receipt Date" >
-            <button>Submit</button>
+            <button onclick="Loading.start();">Submit</button>
         </form>
     </section>
     <section class="si-list">
@@ -105,38 +117,38 @@
         <div class="check-list">
             <div class="box">
                 <h2><span>Shipping</span>
-                    <button onclick="openClose(this)">Open</button>
+                    <button onclick="openClose(this)">Expand</button>
                 </h2>
                 <div id="shipping-grid" class="ag-theme-quartz"></div>
             </div>
             <div class="box">
                 <h2><span>Plan</span>
-                    <button onclick="openClose(this)">Open</button>
+                    <button onclick="openClose(this)">Expand</button>
                 </h2>
             <div id="plan-grid" class="ag-theme-quartz"></div>
             </div>
             <div class="box">
                 <h2><span>Picking</span>
-                    <button onclick="openClose(this)">Open</button>
+                    <button onclick="openClose(this)">Expand</button>
                 </h2>
             <div id="picking-grid" class="ag-theme-quartz"></div>
             </div>
 
             <div class="box">
                 <h2><span>Closing</span>
-                    <button onclick="openClose(this)">Open</button>
+                    <button onclick="openClose(this)">Expand</button>
                 </h2>
             <div id="closing-grid" class="ag-theme-quartz"></div>
             </div>
             <div class="box">
                 <h2><span>Sending 753</span>
-                    <button onclick="openClose(this)">Open</button>
+                    <button onclick="openClose(this)">Expand</button>
                 </h2>
             <div id="sending753-grid" class="ag-theme-quartz"></div>
             </div>
             <div class="box">
                 <h2><span>Sending 856</span>
-                    <button onclick="openClose(this)">Open</button>
+                    <button onclick="openClose(this)">Expand</button>
                 </h2>
             <div id="sending856-grid" class="ag-theme-quartz"></div>
             </div>
@@ -153,7 +165,7 @@
         const openClose = (button) => {
             const boxNode = button.closest('.box');
             boxNode.classList.toggle('show');
-            button.textContent = button.textContent === 'Open' ? 'Close' : 'Open';
+            button.textContent = button.textContent === 'Expand' ? 'Close' : 'Expand';
         }
 
 
@@ -177,8 +189,8 @@
         const sending856 = [[${sending856}]];
 
         let selectedSiNo = siList?.[0]?.siNo;
-        let selectedOrder = shipping?.[0].systemOrderNo;
-        let selectedOORD = shipping?.[0].oordNo;
+        let selectedOrder = shipping?.[0]?.systemOrderNo;
+        let selectedOORD = shipping?.[0]?.oordNo;
 
         dateNode.value = defaultDate;
 
@@ -257,29 +269,59 @@
 
         };
 
+        const selected_order_grid = (grid) => {
+            const rowCount = grid.getDisplayedRowCount();
+            for (let i = 0; i < rowCount; i++) {
+                let rowNode = grid.getDisplayedRowAtIndex(i);
+                if (selected_order(rowNode)) {
+                    return grid.ensureIndexVisible(i, 'middle');
+                }
+            }
+        }
         const selected_order = ({data}) => data.systemOrderNo === selectedOrder || data.oordNo === selectedOORD;
         const defaultGridOptions = {
-            defaultColDef: { width: 120, filter: true, editable: true,},
+            defaultColDef: { width: 120, filter: true, editable: true, enableRowGroup: true,},
+            rowGroupPanelShow: 'always', // 항상 그룹 패널을 표시
+            pivotPanelShow: 'always',    // 항상 피벗 패널을 표시
+            groupDefaultExpanded: -1,    // 모든 그룹을 기본으로 확장
             rowSelection: 'single',
         }
         const shippingGrid = agGrid.createGrid(shippingGridNode,{
             ...defaultGridOptions,
             // rowData: shipping,
-            columnDefs: getFields(['siNo','siItemNo','plannedQty'],shipping[0]),
+            columnDefs: [
+                {   field: 'popup',
+                    width: 80,
+                    cellRenderer: function({data}) {
+                        if( data.siNo === 'Total' ) return;
+                        const button = document.createElement('button');
+                        button.innerHTML = 'Popup';
+                        button.classList.add('popup');
+                        button.addEventListener('click', function() {
+                            const center = getCenter(1200,720);
+                            window.open("/si/find-contact/" + data.contactOrdNo, data.contactOrdNo, `width=1200,height=720,left=${center.left},top=${center.top}`);
+                        });
+                        return button;
+                    }
+                },
+                ...getFields(['siNo','siItemNo','plannedQty'],shipping[0]),
+            ],
             rowClassRules: {
                 selected_order,
             },
+
             onRowSelected: event => {
                 const {data,node} = event;
                 if(node.selected) {
                     selectedOrder = data.systemOrderNo;
                     selectedOORD = data.oordNo;
-                    shippingGrid.redrawRows();
-                    planGrid.redrawRows();
-                    pickingGrid.redrawRows();
-                    closingGrid.redrawRows();
-                    sending753Grid.redrawRows();
-                    sending856Grid.redrawRows();
+
+                    const grids = [shippingGrid, planGrid, pickingGrid, closingGrid, sending753Grid, sending856Grid,];
+
+                    grids.forEach(grid => {
+                        selected_order_grid(grid);
+                        grid.redrawRows();
+                    })
                 }
             },
         })
@@ -325,6 +367,10 @@
         })
 
         changeValue();
+
+        if(siList.length < 1) {
+            setTimeout(() => CommonMessage.notification("조회되었습니다."),100);
+        }
 
     </script>
 </body>

@@ -3,9 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <title>Home</title>
-    <a href="/order/view">Order 조회</a>
+    <link rel="stylesheet" th:href="@{/css/common.css}">
+<!--    <script th:src="@{/js/ag-grid.js}"></script>-->
+    <script th:src="@{/js/loading.js}" defer></script>
+
+    <style>
+        body {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            background-color: lightgray;
+            min-width: 500px;
+            min-height: 300px;
+            border-radius: 10px;
+            padding: 15px;
+        }
+        h1 {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .menu-box {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+        }
+        .menu-box > a {
+            padding: 10px;
+        }
+    </style>
 </head>
 <body>
+
+    <div class="container">
+        <h1>Home Menu</h1>
+        <div class="menu-box">
+            <a onclick="return Loading.start();" href="/order/view">Order 조회 화면</a>
+            <a onclick="return Loading.start();" href="/si">SI NO 조회 화면</a>
+            <a onclick="return Loading.start();" href="/asn/header/search">ASN 미전송 화면</a>
+        </div>
+    </div>
 
 </body>
 </html>

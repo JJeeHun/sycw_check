@@ -2,8 +2,8 @@ package com.sycw.sycw_check.si;
 
 import com.sycw.sycw_check.entity.*;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,13 +11,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDate;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/si")
+@Transactional
 public class SiController {
 
     private final SiOrderRepository siOrderRepository;
@@ -51,6 +52,13 @@ public class SiController {
             model.addAttribute("sending856", sending856All);
         }else {
             model.addAttribute("defaultDate", LocalDate.now());
+            model.addAttribute("siList", new ArrayList<>());
+            model.addAttribute("shipping", new ArrayList<>());
+            model.addAttribute("plan", new ArrayList<>());
+            model.addAttribute("picking", new ArrayList<>());
+            model.addAttribute("closing", new ArrayList<>());
+            model.addAttribute("sending753", new ArrayList<>());
+            model.addAttribute("sending856", new ArrayList<>());
         }
         return "order_view/si_list";
     }
