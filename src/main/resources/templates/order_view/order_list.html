@@ -13,7 +13,7 @@
         }
         #order-grid {
             width: 100%;
-            height: 100%
+            height: 95%
         }
         .search-section {
             width: 100%;
@@ -57,6 +57,9 @@
 
     <div class="container">
         <div id="order-grid" class="ag-theme-quartz"></div>
+        <div class="button-box">
+            <button onclick="orderCountSearchView();">Order 수량 조회</button>
+        </div>
     </div>
 
     <script th:inline="javascript">
@@ -71,15 +74,42 @@
             ).map(key => ({field: key}));
         }
 
+        const orderCountSearchView = () => {
+            const selectedNodes = orderGrid.getSelectedNodes();
+            if(!selectedNodes || selectedNodes.length < 1) return alert('선택된 항목이 없습니다.');
+            Loading.start();
+
+            const form = document.createElement('form');
+            form.method = 'post';
+            form.action = '/contact/check-qty/list';
+
+            selectedNodes.forEach(row => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'contactOrderNo';
+                input.value = row.data.contactOrdNo;
+                form.appendChild(input);
+            });
+
+            document.body.appendChild(form);
+            form.submit();
+        }
+
         // Grid Options: Contains all of the Data Grid configurations
         const gridOptions = {
             // Row Data: The data to be displayed.
             rowData: orders,
             defaultColDef: { width: 200, filter: true, editable: true,rowDrag: true,},
-            rowSelection: 'single', // 단일 행 선택filter
+            rowSelection: 'multiple', // 단일 행 선택filter
             rowDragManaged: true, // 행 드래그 관리 활성화
             animateRows: true, // 행 애니메이션 활성화
             columnDefs: [
+                {
+                    headerCheckboxSelection: true, // 헤더에 체크박스 추가
+                    checkboxSelection: true,       // 각 행에 체크박스 추가
+                    headerCheckboxSelectionFilteredOnly: true, // 현재 필터된 행에만 전체 선택 적용
+                    width: 80
+                },
                 {   field: 'popup',
                     width: 100,
                     cellRenderer: function(params) {
@@ -107,7 +137,7 @@
 
         // Your Javascript code to create the Data Grid
         const orderGridNode = document.querySelector('#order-grid');
-        agGrid.createGrid(orderGridNode, gridOptions);
+        const orderGrid = agGrid.createGrid(orderGridNode, gridOptions);
     </script>
 
 </body>

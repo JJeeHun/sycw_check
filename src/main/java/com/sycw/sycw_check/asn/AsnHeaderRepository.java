@@ -33,4 +33,13 @@ public interface AsnHeaderRepository {
             @Param("SI_NO") String siNo,
             @Param("SHIPMENT_ITEM_NO") String shipmentItemNo
     );
+
+    @Select({
+        "select",
+        "a.*,b.*",
+        "from",
+        "tb_ecw830 a",
+        "inner join tb_ecw831 b on a.IF_KEY = b.IF_KEY"
+    })
+    List<Map<String,Object>> findAllCowayGrCompleteItems();
 }

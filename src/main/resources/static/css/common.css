@@ -5,6 +5,11 @@
     font-style: normal;
 }
 
+:root {
+    --bg-color: #0d6efd;
+    --bg-hover-color: #0b5ed7;
+}
+
 * {
     margin: 0;
     box-sizing: border-box;
@@ -89,11 +94,38 @@
     width: 25px;
     height: 25px;
 }
+.home:hover {
+    fill: var(--bg-hover-color);
+}
 
 .error {
     color: red;
     font-weight: 600;
     transition: color .2s ease-in-out;
+}
+
+.number {
+    text-align: right;
+}
+
+.button-box {
+    display: flex;
+    justify-content: flex-end;
+    padding: 9px 5px;
+}
+
+.button-box > button {
+    background-color: var(--bg-color);
+    border: var(--bg-color);
+    color: #ffffff;
+    border-radius: 5px;
+    padding: 10px 20px;
+    font-weight: 600;
+    letter-spacing: .5px;
+    transition: background-color .3s ease-in-out;
+}
+.button-box > button:hover {
+    background-color: var(--bg-hover-color);
 }
 
 @keyframes spin {

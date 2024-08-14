@@ -13,9 +13,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import java.io.IOException;
 import java.io.PrintWriter;
-import java.nio.charset.StandardCharsets;
 
 @Controller
 @Slf4j
@@ -32,6 +30,10 @@ public class LoginController implements HandlerInterceptor, WebMvcConfigurer {
         return "login";
     }
 
+    @GetMapping("/contactCheck")
+    public String contactCheckView() {
+        return "contactCheck";
+    }
 
     @PostMapping("/login")
     public String login(HttpServletRequest request, @RequestParam String id, @RequestParam String password) {
@@ -42,7 +44,7 @@ public class LoginController implements HandlerInterceptor, WebMvcConfigurer {
         ) {
             HttpSession session = request.getSession();
             session.setAttribute("id", "test");
-            return "contactCheck";
+            return "redirect:/contactCheck";
         }
         return "redirect:/";
     }

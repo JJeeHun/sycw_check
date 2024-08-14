@@ -8,6 +8,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.BufferedReader;
@@ -64,13 +65,20 @@ public class ContactController {
         return list.stream().collect(Collectors.groupingBy(ContactDTO::getContactOrderNo));
     }
 
+    @PostMapping("/check-qty/list")
+    @Transactional
+    public String checkQtyView(@RequestParam("contactOrderNo") List<String> contactOrderNoList, Model model) {
+        String joinData = String.join(System.lineSeparator(), contactOrderNoList);
+        return checkQty(joinData, null, model);
+    }
+
     @PostMapping("/check-qty")
     @Transactional
     public String checkQty(String contactOrderNo, MultipartFile file, Model model) {
 
         if(contactOrderNo == null && (file == null || file.isEmpty()) ) return "redirect:/contactCheck.html";
 
-        if(!file.isEmpty()) {
+        if(file != null && !file.isEmpty()) {
             List<ContactDTO> contactList = getCsv(file);
 
             List<Map<String, Map<String, List<ContactDTO>>>> maps = this.contactQtyService(contactList);
